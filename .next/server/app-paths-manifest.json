@@ -1,14 +1,8 @@
 {
-  "/api/auth/customer/route": "app/api/auth/customer/route.js",
   "/page": "app/page.js",
-  "/api/customer/gallery/route": "app/api/customer/gallery/route.js",
-  "/api/customer/select/route": "app/api/customer/select/route.js",
-  "/api/admin/customers/route": "app/api/admin/customers/route.js",
   "/api/admin/folders/route": "app/api/admin/folders/route.js",
   "/api/admin/customers/[id]/route": "app/api/admin/customers/[id]/route.js",
-  "/api/admin/download/route": "app/api/admin/download/route.js",
-  "/admin/customers/page": "app/admin/customers/page.js",
-  "/customer/page": "app/customer/page.js",
   "/admin/page": "app/admin/page.js",
-  "/admin/customers/[id]/page": "app/admin/customers/[id]/page.js"
+  "/admin/customers/[id]/page": "app/admin/customers/[id]/page.js",
+  "/admin/customers/page": "app/admin/customers/page.js"
 }

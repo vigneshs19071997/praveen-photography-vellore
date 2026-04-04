@@ -193,23 +193,19 @@ export default function CustomerDetailPage() {
     }
     await Promise.all(Array.from({ length: 20 }, thumbWorker))
 
-    setProcessProgress({ current: imageFiles.length, total: imageFiles.length, phase: 'Uploading to cloud…' })
-
-    // Split into 3 parallel requests — each runs 10 concurrent Cloudinary workers = 30 total
-    const CHUNKS = 3
-    const chunkSize = Math.ceil(allPayloads.length / CHUNKS)
-    const uploadChunks = Array.from({ length: CHUNKS }, (_, i) =>
-      allPayloads.slice(i * chunkSize, (i + 1) * chunkSize)
-    ).filter(c => c.length > 0)
-
-    const results = await Promise.all(uploadChunks.map(chunk =>
-      fetch('/api/admin/photos', {
+    // Send in small sequential batches to stay under Vercel's 4.5 MB payload limit
+    const BATCH_SIZE = 50
+    let registered = 0
+    for (let i = 0; i < allPayloads.length; i += BATCH_SIZE) {
+      const batch = allPayloads.slice(i, i + BATCH_SIZE)
+      setProcessProgress({ current: i + batch.length, total: allPayloads.length, phase: `Uploading to cloud… (${i + batch.length}/${allPayloads.length})` })
+      const data = await fetch('/api/admin/photos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId: id, folderDbId: activeFolder.id, photos: chunk }),
+        body: JSON.stringify({ customerId: id, folderDbId: activeFolder.id, photos: batch }),
       }).then(r => r.json())
-    ))
-    const registered = results.reduce((sum: number, d: any) => sum + (d.uploaded || 0), 0)
+      registered += data.uploaded || 0
+    }
 
     showToast(`✅ ${registered} photos registered. Full-res files remain on your disk.`)
     setProcessing(false)
@@ -259,22 +255,19 @@ export default function CustomerDetailPage() {
     }
     await Promise.all(Array.from({ length: 20 }, thumbWorker))
 
-    setProcessProgress({ current: imageFiles.length, total: imageFiles.length, phase: 'Uploading to cloud…' })
-
-    const CHUNKS = 3
-    const chunkSize = Math.ceil(allPayloads.length / CHUNKS)
-    const uploadChunks = Array.from({ length: CHUNKS }, (_, i) =>
-      allPayloads.slice(i * chunkSize, (i + 1) * chunkSize)
-    ).filter(c => c.length > 0)
-
-    const results = await Promise.all(uploadChunks.map(chunk =>
-      fetch('/api/admin/photos', {
+    // Send in small sequential batches to stay under Vercel's 4.5 MB payload limit
+    const BATCH_SIZE = 50
+    let registered = 0
+    for (let i = 0; i < allPayloads.length; i += BATCH_SIZE) {
+      const batch = allPayloads.slice(i, i + BATCH_SIZE)
+      setProcessProgress({ current: i + batch.length, total: allPayloads.length, phase: `Uploading to cloud… (${i + batch.length}/${allPayloads.length})` })
+      const data = await fetch('/api/admin/photos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId: id, folderDbId: activeFolder.id, photos: chunk }),
+        body: JSON.stringify({ customerId: id, folderDbId: activeFolder.id, photos: batch }),
       }).then(r => r.json())
-    ))
-    const registered = results.reduce((sum: number, d: any) => sum + (d.uploaded || 0), 0)
+      registered += data.uploaded || 0
+    }
 
     showToast(`✅ ${registered} photos registered from uploaded files.`)
     setProcessing(false)
